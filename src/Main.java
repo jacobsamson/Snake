@@ -1,9 +1,6 @@
 public class Main {
-    //test
     public static void main(String[] args) {
-        System.out.println("hi");
-        System.out.print("l");
-        //lol
-        //lol299
+        new GameFrame();
+        //new GamePanel();
     }
 }
