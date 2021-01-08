@@ -9,7 +9,7 @@ public class GamePanel extends JPanel implements ActionListener {
     static final int SCREEN_HEIGHT = 600;
     static final int UNIT_SIZE = 25;
     static final int GAME_UNITS = (600*600)/25;
-    static final int DELAY = 75; //game pace
+    static final int DELAY = 100;
     //arrays to record x and y coordinates of snake parts
     final int x[] = new int[GAME_UNITS];
     final int y[] = new int[GAME_UNITS];
@@ -42,25 +42,66 @@ public class GamePanel extends JPanel implements ActionListener {
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         draw(g);
+
     }
 
     public void draw(Graphics g){
-        for(int i = 0; i <SCREEN_HEIGHT/UNIT_SIZE; i ++){
-            g.drawLine(i*UNIT_SIZE, 0,i *UNIT_SIZE, SCREEN_HEIGHT);
-            g.drawLine(0, i*UNIT_SIZE, SCREEN_WIDTH, i*UNIT_SIZE);
-        }
-
-        g.setColor(Color.red);
-        g.fillOval(pointX, pointY, UNIT_SIZE, UNIT_SIZE);
-
-        for(int i =0; i < snakeParts; i ++){
-            if(i == 0){
-                g.setColor(Color.green);
-                g.fillRect(x[i],y[i], UNIT_SIZE, UNIT_SIZE);
-            }else{
-                g.setColor(Color.orange);
-                g.fillRect(x[i],y[i], UNIT_SIZE, UNIT_SIZE);
+        if(gameRunning) {
+            //draws grid on game screen
+            for (int i = 0; i < SCREEN_HEIGHT / UNIT_SIZE; i++) {
+                g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
+                g.drawLine(0, i * UNIT_SIZE, SCREEN_WIDTH, i * UNIT_SIZE);
             }
+
+            //draws points
+            g.setColor(Color.red);
+            g.fillOval(pointX, pointY, UNIT_SIZE, UNIT_SIZE);
+
+            //draws snake
+            for (int i = 0; i < snakeParts; i++) {
+                if (i == 0) {
+                    g.setColor(Color.green);
+                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+                    //draws eye and tongue on snake head depending on direction snake is facing
+                    if(direction == 'R') {
+                        g.setColor(Color.black);
+                        g.fillRect(x[i] + 3, y[i] - 3, 10, 10);
+                        g.setColor(Color.white);
+                        g.fillRect(x[i] + 3, y[i] - 3, 5, 5);
+                        g.setColor(Color.pink);
+                        g.fillRect(x[i] + 20, y[i] + 10, 20, 5);
+                    }
+                    if(direction == 'L') {
+                        g.setColor(Color.black);
+                        g.fillRect(x[i] + 6, y[i] - 3, 10, 10);
+                        g.setColor(Color.white);
+                        g.fillRect(x[i] + 6, y[i] - 3, 5, 5);
+                        g.setColor(Color.pink);
+                        g.fillRect(x[i] - 20, y[i] + 10, 20, 5);
+                    }
+                    if(direction == 'U') {
+                        g.setColor(Color.black);
+                        g.fillRect(x[i] - 6, y[i] +10, 10, 10);
+                        g.setColor(Color.white);
+                        g.fillRect(x[i] - 6, y[i] +10, 5, 5);
+                        g.setColor(Color.pink);
+                        g.fillRect(x[i]+12, y[i] - 20, 5, 20);
+                    }
+                    if(direction == 'D') {
+                        g.setColor(Color.black);
+                        g.fillRect(x[i] - 6, y[i] + 10, 10, 10);
+                        g.setColor(Color.white);
+                        g.fillRect(x[i] - 6, y[i] + 10, 5, 5);
+                        g.setColor(Color.pink);
+                        g.fillRect(x[i]+12, y[i] + 20, 5, 20);
+                    }
+                }else {
+                    g.setColor(Color.green);
+                    g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+                }
+            }
+        }else{
+            gameOver(g);
         }
     }
 
@@ -70,48 +111,52 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void move(){
-        for(int i = snakeParts; i > 0; i --){
-            System.out.println(i);
+        for(int i = snakeParts - 1; i > 0; i --){
+            //System.out.println(i);
             x[i] = x[i-1];
             y[i] = y[i-1];
         }
-        System.out.println("");
-
-        switch(direction){
-            case'U':
-                y[0] = y[0] - UNIT_SIZE;
-                break;
-            case'D':
-                y[0] = y[0] + UNIT_SIZE;
-                break;
-            case'R':
-                x[0] = x[0] + UNIT_SIZE;
-                break;
-            case'L':
-                x[0] = x[0] - UNIT_SIZE;
-                break;
+        switch (direction) {
+            case 'U' -> y[0] = y[0] - UNIT_SIZE;
+            case 'D' -> y[0] = y[0] + UNIT_SIZE;
+            case 'R' -> x[0] = x[0] + UNIT_SIZE;
+            case 'L' -> x[0] = x[0] - UNIT_SIZE;
         }
-
-    }
-
-    public void checkPoint(){
-
     }
 
     public void checkCollision(){
-
+        //checks if snake runs into itself
+        for(int i = snakeParts; i > 0; i --){
+            if(x[0] == x[i] && y[0] == y[i]){
+                gameRunning = false;
+            }
+        }
+        //checks if snake runs into ends of screen
+        if(x[0] < 0 || x[0] > SCREEN_WIDTH || y[0] < 0 || y[0] > SCREEN_HEIGHT){
+            gameRunning = false;
+        }
+        //checks if snake runs into point
+        if(x[0] == pointX && y[0] == pointY){
+            score++;
+            snakeParts++;
+            newPoint();
+        }
+        if(!gameRunning)
+            timer.stop();
     }
 
     public void gameOver(Graphics g){
-
+        g.setColor(Color.red);
+        g.setFont(new Font("Sans Serif", Font.BOLD, 75));
+        FontMetrics metrics = getFontMetrics(g.getFont());
+        g.drawString("Game Over", (SCREEN_WIDTH -  metrics.stringWidth("Game Over"))/2, SCREEN_HEIGHT /2);
     }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if(gameRunning){
             move();
-            checkPoint();
             checkCollision();
-
         }
         repaint();
     }
@@ -119,7 +164,33 @@ public class GamePanel extends JPanel implements ActionListener {
     public class myKeyAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e){
-
+            switch(e.getKeyCode()){
+                case KeyEvent.VK_LEFT:
+                case KeyEvent.VK_A:
+                    //stops player from making snake turn 180
+                    if(direction != 'R'){
+                        direction = 'L';
+                    }
+                    break;
+                case KeyEvent.VK_RIGHT:
+                case KeyEvent.VK_D:
+                    if(direction != 'L'){
+                        direction = 'R';
+                    }
+                    break;
+                case KeyEvent.VK_UP:
+                case KeyEvent.VK_W:
+                    if(direction != 'D'){
+                        direction = 'U';
+                    }
+                    break;
+                case KeyEvent.VK_DOWN:
+                case KeyEvent.VK_S:
+                    if(direction != 'U'){
+                        direction = 'D';
+                    }
+                    break;
+            }
         }
     }
 }
