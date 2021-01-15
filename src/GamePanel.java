@@ -17,6 +17,7 @@ public class GamePanel extends JPanel implements ActionListener {
     //coordinates of the points/score the snake has to touch
     int pointX;
     int pointY;
+
     int quickPointX;
     int quickPointY;
     int slowPointX;
