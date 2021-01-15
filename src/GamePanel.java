@@ -8,7 +8,7 @@ public class GamePanel extends JPanel implements ActionListener {
     static final int SCREEN_HEIGHT = 500;
     static final int UNIT_SIZE = 25;
     static final int GAME_UNITS = (SCREEN_HEIGHT * SCREEN_WIDTH)/UNIT_SIZE;
-    static final int DELAY = 100;
+    int delay = 100;
     //arrays to record x and y coordinates of snake parts
     final int x[] = new int[GAME_UNITS];
     final int y[] = new int[GAME_UNITS];
@@ -17,6 +17,10 @@ public class GamePanel extends JPanel implements ActionListener {
     //coordinates of the points/score the snake has to touch
     int pointX;
     int pointY;
+    int quickPointX;
+    int quickPointY;
+    int slowPointX;
+    int slowPointY;
     char direction = 'R';
     boolean gameRunning = false;
     Timer timer;
@@ -37,7 +41,9 @@ public class GamePanel extends JPanel implements ActionListener {
     public void startGame(){
         gameRunning = true;
         newPoint();
-        timer = new Timer(DELAY, this);
+        newQuickPoint();
+        newSlowPoint();
+        timer = new Timer(delay, this);
         timer.start();
     }
 
@@ -60,6 +66,13 @@ public class GamePanel extends JPanel implements ActionListener {
             //draws points
             g.setColor(Color.red);
             g.fillOval(pointX, pointY, UNIT_SIZE, UNIT_SIZE);
+
+            g.setColor(Color.orange);
+            g.fillRect(slowPointX + 3, slowPointY + 10,UNIT_SIZE - 5, UNIT_SIZE/4);
+
+            g.setColor(Color.blue);
+            g.fillRect(quickPointX + 3, quickPointY + 10,UNIT_SIZE - 5, UNIT_SIZE/4);
+            g.fillRect(quickPointX + 10, quickPointY + 3,UNIT_SIZE/4, UNIT_SIZE - 5);
 
             //draws snake
             for (int i = 0; i < snakeParts; i++) {
@@ -119,6 +132,29 @@ public class GamePanel extends JPanel implements ActionListener {
     public void newPoint(){
         pointX = rand.nextInt((int)SCREEN_WIDTH/UNIT_SIZE)*UNIT_SIZE;
         pointY = rand.nextInt((int)SCREEN_HEIGHT/UNIT_SIZE)*UNIT_SIZE;
+
+        while((slowPointX == pointX && slowPointY == pointY) || (pointX == quickPointX && pointY == quickPointY)) {
+            pointX = rand.nextInt((int) SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
+            pointY = rand.nextInt((int) SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
+        }
+    }
+    public void newSlowPoint(){
+        slowPointX = rand.nextInt((int) SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
+        slowPointY = rand.nextInt((int) SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
+
+        while((slowPointX == pointX && slowPointY == pointY) || (slowPointX == quickPointX && slowPointY == quickPointY)) {
+            slowPointX = rand.nextInt((int) SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
+            slowPointY = rand.nextInt((int) SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
+        }
+    }
+    public void newQuickPoint(){
+        quickPointX = rand.nextInt((int)SCREEN_WIDTH/UNIT_SIZE)*UNIT_SIZE;
+        quickPointY = rand.nextInt((int)SCREEN_HEIGHT/UNIT_SIZE)*UNIT_SIZE;
+
+        while((quickPointX == pointX && quickPointY == pointY) || (quickPointX == slowPointX && quickPointY == slowPointY)) {
+            quickPointX = rand.nextInt((int) SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
+            quickPointY = rand.nextInt((int) SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
+        }
     }
 
     /**
@@ -157,6 +193,20 @@ public class GamePanel extends JPanel implements ActionListener {
             score++;
             snakeParts++;
             newPoint();
+        }
+
+        //checks if snake runs into quick point
+        if(x[0] == quickPointX && y[0] == quickPointY){
+            delay++;
+            newQuickPoint();
+            timer = new Timer(delay, this);
+            timer.start();
+        }
+
+        //checks if snake runs into slow point
+        if(x[0] == slowPointX && y[0] == slowPointY){
+            snakeParts--;
+            newSlowPoint();
         }
         if(!gameRunning)
             timer.stop();
