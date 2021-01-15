@@ -19,8 +19,8 @@ public class GamePanel extends JPanel implements ActionListener {
     int pointY;
     int quickPointX;
     int quickPointY;
-    int slowPointX;
-    int slowPointY;
+    int subPointX;
+    int subPointY;
     char direction = 'R';
     boolean gameRunning = false;
     Timer timer;
@@ -42,7 +42,7 @@ public class GamePanel extends JPanel implements ActionListener {
         gameRunning = true;
         newPoint();
         newQuickPoint();
-        newSlowPoint();
+        newsubPoint();
         timer = new Timer(delay, this);
         timer.start();
     }
@@ -68,7 +68,7 @@ public class GamePanel extends JPanel implements ActionListener {
             g.fillOval(pointX, pointY, UNIT_SIZE, UNIT_SIZE);
 
             g.setColor(Color.orange);
-            g.fillRect(slowPointX + 3, slowPointY + 10,UNIT_SIZE - 5, UNIT_SIZE/4);
+            g.fillRect(subPointX + 3, subPointY + 10,UNIT_SIZE - 5, UNIT_SIZE/4);
 
             g.setColor(Color.blue);
             g.fillRect(quickPointX + 3, quickPointY + 10,UNIT_SIZE - 5, UNIT_SIZE/4);
@@ -133,25 +133,25 @@ public class GamePanel extends JPanel implements ActionListener {
         pointX = rand.nextInt((int)SCREEN_WIDTH/UNIT_SIZE)*UNIT_SIZE;
         pointY = rand.nextInt((int)SCREEN_HEIGHT/UNIT_SIZE)*UNIT_SIZE;
 
-        while((slowPointX == pointX && slowPointY == pointY) || (pointX == quickPointX && pointY == quickPointY)) {
+        while((subPointX == pointX && subPointY == pointY) || (pointX == quickPointX && pointY == quickPointY)) {
             pointX = rand.nextInt((int) SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
             pointY = rand.nextInt((int) SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
         }
     }
-    public void newSlowPoint(){
-        slowPointX = rand.nextInt((int) SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
-        slowPointY = rand.nextInt((int) SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
+    public void newsubPoint(){
+        subPointX = rand.nextInt((int) SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
+        subPointY = rand.nextInt((int) SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
 
-        while((slowPointX == pointX && slowPointY == pointY) || (slowPointX == quickPointX && slowPointY == quickPointY)) {
-            slowPointX = rand.nextInt((int) SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
-            slowPointY = rand.nextInt((int) SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
+        while((subPointX == pointX && subPointY == pointY) || (subPointX == quickPointX && subPointY == quickPointY)) {
+            subPointX = rand.nextInt((int) SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
+            subPointY = rand.nextInt((int) SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
         }
     }
     public void newQuickPoint(){
         quickPointX = rand.nextInt((int)SCREEN_WIDTH/UNIT_SIZE)*UNIT_SIZE;
         quickPointY = rand.nextInt((int)SCREEN_HEIGHT/UNIT_SIZE)*UNIT_SIZE;
 
-        while((quickPointX == pointX && quickPointY == pointY) || (quickPointX == slowPointX && quickPointY == slowPointY)) {
+        while((quickPointX == pointX && quickPointY == pointY) || (quickPointX == subPointX && quickPointY == subPointY)) {
             quickPointX = rand.nextInt((int) SCREEN_WIDTH / UNIT_SIZE) * UNIT_SIZE;
             quickPointY = rand.nextInt((int) SCREEN_HEIGHT / UNIT_SIZE) * UNIT_SIZE;
         }
@@ -204,9 +204,9 @@ public class GamePanel extends JPanel implements ActionListener {
         }
 
         //checks if snake runs into slow point
-        if(x[0] == slowPointX && y[0] == slowPointY){
+        if(x[0] == subPointX && y[0] == subPointY){
             snakeParts--;
-            newSlowPoint();
+            newsubPoint();
         }
         if(!gameRunning)
             timer.stop();
